@@ -225,15 +225,7 @@ function SupplierScreen() {
       <div className="w-full h-3/4  border border-lineColor py-3 rounded-md flex flex-col justify-between mt-3">
         <div className="flex justify-between items-center px-5 pb-5">
           <p className="text-xl w-1/3">ລາຍການຜູ້ສະຫນອງທັງຫມົດ</p>
-          <div className=" border w-1/5 border-lineColor px-5 py-2 rounded-md flex items-center justify-between">
-            <div className=" flex items-center">
-              <LuCalendarSearch size={30} color="#625F5F" />
-              <div className="w-full rounded text-start ml-2 text-unSelectText">
-                19/02/2024
-              </div>
-            </div>
-            <IoIosArrowDown size={25} color="#625F5F" />
-          </div>
+          
         </div>
         <div className="border border-lineColor w-full py-3  bg-head flex justify-between items-center px-5 ">
           <p className="text-base font-light flex justify-center items-center w-1/12 ">

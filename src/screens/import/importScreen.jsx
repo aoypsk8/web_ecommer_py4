@@ -11,6 +11,8 @@ import {
   GetAllImportPro,
   GetAllSupplier,
 } from "../../api/importAPI/importAction";
+import DatePicker from "react-datepicker";
+
 function formatNumber(number) {
   return new Intl.NumberFormat("en-US").format(number);
 }
@@ -40,6 +42,10 @@ function ImportScreen() {
   const [userId, setUserId] = useState("");
   const [supplierId, setSupplierId] = useState("");
   const { product } = useSelector((state) => state.product);
+
+  const [filteredSaleData, setFilteredSaleData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+
   const [value, setValue] = useState({
     Pro_name: "",
     ReceivedQty: "",
@@ -52,8 +58,9 @@ function ImportScreen() {
     setImportProData(importPro || []);
     setSupplierData(supplier || []);
     setUserId(userInfo.Emp_ID);
+    filterSalesByDate(selectedDate);
     // console.log(supplier);
-  }, [dispatch, value]);
+  }, [dispatch, value, selectedDate]);
 
   const [selectedSupplier, setSelectedSupplier] = useState({
     Sl_ID: null,
@@ -68,11 +75,27 @@ function ImportScreen() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(4);
-  const supplierArray = importPro || [];
-  const totalPages = Math.ceil(supplierArray.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredSaleData.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = supplierArray.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredSaleData.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+
+  const filterSalesByDate = (date) => {
+    if (date) {
+      const formattedDate = formatDate(date.toISOString());
+      const filteredSales = importPro.filter(
+        (item) => formatDate(item.Date_received) === formattedDate
+      );
+      setFilteredSaleData(filteredSales);
+    } else {
+      // If no date selected, show all sales
+      setFilteredSaleData(importPro || []);
+      console.log(currentItems);
+    }
+  };
 
   // Handle next and previous page
   const nextPage = () => {
@@ -85,7 +108,6 @@ function ImportScreen() {
       setCurrentPage(currentPage - 1);
     }
   };
-
   const handleChange = (e) => {
     setValue({
       ...value,
@@ -240,13 +262,13 @@ function ImportScreen() {
         <div className="flex justify-between items-center px-5 pb-5">
           <p className="text-xl w-1/3">ລາຍການນຳເຂົ້າສິນຄ້າທັງຫມົດ</p>
           <div className=" border w-1/5 border-lineColor px-5 py-2 rounded-md flex items-center justify-between">
-            <div className=" flex items-center">
-              <LuCalendarSearch size={30} color="#625F5F" />
-              <div className="w-full rounded text-start ml-2 text-unSelectText">
-                19/02/2024
-              </div>
-            </div>
-            <IoIosArrowDown size={25} color="#625F5F" />
+            <LuCalendarSearch size={30} color="#625F5F" />
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              dateFormat="dd/MM/yyyy"
+              className="w-full rounded text-start ml-2 text-unSelectText"
+            />
           </div>
         </div>
         <div className="border border-lineColor w-full py-3  bg-head flex justify-between items-center px-5 ">
@@ -321,8 +343,8 @@ function ImportScreen() {
           </div>
           <div className="text-base font-light">
             {indexOfFirstItem + 1} -{" "}
-            {Math.min(indexOfLastItem, supplierArray.length)} of{" "}
-            {supplierArray.length}
+            {Math.min(indexOfLastItem, filteredSaleData.length)} of{" "}
+            {filteredSaleData.length}
           </div>
           <div
             className="w-1/12 border border-lineColor bg-white rounded-md items-center justify-center flex"

@@ -5,6 +5,7 @@ import { LuCalendarSearch } from "react-icons/lu";
 import { useDispatch, useSelector } from "react-redux";
 import { GetAllProduct } from "../api/productAPI/productAction";
 import { GetAlltype } from "../api/typeAPI/typeAction";
+import DatePicker from "react-datepicker";
 
 function formatNumber(number) {
   return new Intl.NumberFormat("en-US").format(number);
@@ -29,19 +30,29 @@ function TypeReport() {
   const [typeData, setTypeData] = useState([]);
   const { type } = useSelector((state) => state.type);
 
+  const [filteredSaleData, setFilteredSaleData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null); // Initially no date selected
+
   useEffect(() => {
     dispatch(GetAlltype());
-    setTypeData(type || []);
   }, [dispatch]);
+
+  useEffect(() => {
+    setTypeData(type || []);
+    filterSalesByDate(selectedDate);
+  }, [type, selectedDate]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(4);
-  const supplierArray = type || [];
-  const totalPages = Math.ceil(supplierArray.length / itemsPerPage);
+
+  const totalPages = Math.ceil(filteredSaleData.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = supplierArray.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredSaleData.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   // Handle next and previous page
   const nextPage = () => {
@@ -49,9 +60,25 @@ function TypeReport() {
       setCurrentPage(currentPage + 1);
     }
   };
+
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const filterSalesByDate = (date) => {
+    console.log(date);
+    if (date) {
+      const formattedDate = formatDate(date.toISOString());
+      const filteredSales = type.filter(
+        (item) => formatDate(item.timeStamp) === formattedDate
+      );
+      setFilteredSaleData(filteredSales);
+    } else {
+      // If no date selected, show all sales
+      setFilteredSaleData(type || []);
+      console.log(currentItems);
     }
   };
 
@@ -62,13 +89,13 @@ function TypeReport() {
         <div className="flex justify-between items-center px-5 pb-5">
           <p className="text-xl w-1/3">ລາຍການປະເພດສິນຄ້າທັງຫມົດ</p>
           <div className=" border w-1/5 border-lineColor px-5 py-2 rounded-md flex items-center justify-between">
-            <div className=" flex items-center">
-              <LuCalendarSearch size={30} color="#625F5F" />
-              <div className="w-full rounded text-start ml-2 text-unSelectText">
-                19/02/2024
-              </div>
-            </div>
-            <IoIosArrowDown size={25} color="#625F5F" />
+            <LuCalendarSearch size={30} color="#625F5F" />
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              dateFormat="dd/MM/yyyy"
+              className="w-full rounded text-start ml-2 text-unSelectText"
+            />
           </div>
         </div>
         <div className="border border-lineColor w-full py-3  bg-head flex justify-between items-center px-5 ">
@@ -100,11 +127,7 @@ function TypeReport() {
             <p className="text-base font-light flex justify-center items-center w-1/6">
               {item.Product_Type_Name}
             </p>
-            <img
-              src={item.img}
-              alt=""
-              className="w-16 h-16 object-cover"
-            />
+            <img src={item.img} alt="" className="w-16 h-16 object-cover" />
             <p className="text-base font-light flex justify-center items-center w-1/12">
               {formatTime(item.timeStamp)}
             </p>
@@ -122,8 +145,8 @@ function TypeReport() {
           </div>
           <div className="text-base font-light">
             {indexOfFirstItem + 1} -{" "}
-            {Math.min(indexOfLastItem, supplierArray.length)} of{" "}
-            {supplierArray.length}
+            {Math.min(indexOfLastItem, filteredSaleData.length)} of{" "}
+            {filteredSaleData.length}
           </div>
           <div
             className="w-1/12 border border-lineColor bg-white rounded-md items-center justify-center flex"

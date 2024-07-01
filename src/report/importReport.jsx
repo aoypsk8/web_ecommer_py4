@@ -6,6 +6,7 @@ import ic_save1 from "../../src/assets/icons/save1.svg";
 import ic_close1 from "../../src/assets/icons/close1.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { GetAllImportPro } from "../api/importAPI/importAction";
+import DatePicker from "react-datepicker";
 
 function formatNumber(number) {
   return new Intl.NumberFormat("en-US").format(number);
@@ -31,19 +32,29 @@ function ImportReport() {
   const [importProData, setImportProData] = useState([]);
   const { importPro } = useSelector((state) => state.importPro);
 
+  const [filteredSaleData, setFilteredSaleData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null); // Initially no date selected
+
   useEffect(() => {
     dispatch(GetAllImportPro());
-    setImportProData(importPro || []);
   }, [dispatch]);
+
+  useEffect(() => {
+    setImportProData(importPro || []);
+    filterSalesByDate(selectedDate);
+  }, [importPro, selectedDate]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(4);
-  const supplierArray = importPro || [];
-  const totalPages = Math.ceil(supplierArray.length / itemsPerPage);
+
+  const totalPages = Math.ceil(filteredSaleData.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = supplierArray.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredSaleData.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   // Handle next and previous page
   const nextPage = () => {
@@ -51,9 +62,25 @@ function ImportReport() {
       setCurrentPage(currentPage + 1);
     }
   };
+
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const filterSalesByDate = (date) => {
+    console.log(importPro);
+    if (date) {
+      const formattedDate = formatDate(date.toISOString());
+      const filteredSales = importPro.filter(
+        (item) => formatDate(item.Date_received) === formattedDate
+      );
+      setFilteredSaleData(filteredSales);
+    } else {
+      // If no date selected, show all sales
+      setFilteredSaleData(importPro || []);
+      console.log(currentItems);
     }
   };
 
@@ -64,13 +91,13 @@ function ImportReport() {
         <div className="flex justify-between items-center px-5 pb-5">
           <p className="text-xl w-1/3">ລາຍການນຳເຂົ້າສິນຄ້າທັງຫມົດ</p>
           <div className=" border w-1/5 border-lineColor px-5 py-2 rounded-md flex items-center justify-between">
-            <div className=" flex items-center">
-              <LuCalendarSearch size={30} color="#625F5F" />
-              <div className="w-full rounded text-start ml-2 text-unSelectText">
-                19/02/2024
-              </div>
-            </div>
-            <IoIosArrowDown size={25} color="#625F5F" />
+            <LuCalendarSearch size={30} color="#625F5F" />
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              dateFormat="dd/MM/yyyy"
+              className="w-full rounded text-start ml-2 text-unSelectText"
+            />
           </div>
         </div>
         <div className="border border-lineColor w-full py-3  bg-head flex justify-between items-center px-5 ">
@@ -145,8 +172,8 @@ function ImportReport() {
           </div>
           <div className="text-base font-light">
             {indexOfFirstItem + 1} -{" "}
-            {Math.min(indexOfLastItem, supplierArray.length)} of{" "}
-            {supplierArray.length}
+            {Math.min(indexOfLastItem, filteredSaleData.length)} of{" "}
+            {filteredSaleData.length}
           </div>
           <div
             className="w-1/12 border border-lineColor bg-white rounded-md items-center justify-center flex"

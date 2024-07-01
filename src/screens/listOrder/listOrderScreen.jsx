@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { LuCalendarSearch } from "react-icons/lu";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import "../../App.css";
 import ListOrderModalComponent from "./modal/listOrderModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,6 +30,7 @@ const formatDate = (isoDateString) => {
 function ListOrderScreen() {
   const dispatch = useDispatch();
   const [orderData, setOrderData] = useState([]);
+  const [filteredOrderData, setFilteredOrderData] = useState([]);
   const [orderInsideData, setOrderInsideData] = useState([]);
   const [total, setTotal] = useState();
   const [imgPay, setImgPay] = useState();
@@ -35,6 +38,7 @@ function ListOrderScreen() {
   const [orderID, setOrderID] = useState();
   const { order } = useSelector((state) => state.order);
   const { userInfo } = useSelector((state) => state.user);
+  const [selectedDate, setSelectedDate] = useState(null); // Initially no date selected
 
   useEffect(() => {
     setOrderData(order || []);
@@ -43,6 +47,10 @@ function ListOrderScreen() {
     }
     dispatch(GetAllOrder());
   }, [dispatch]);
+
+  useEffect(() => {
+    filterOrdersByDate(selectedDate);
+  }, [selectedDate, order]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => {
@@ -54,13 +62,15 @@ function ListOrderScreen() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(4); // Set number of items per page
-  const orderArray = order || [];
-  const totalPages = Math.ceil(orderArray.length / itemsPerPage);
+  const [itemsPerPage] = useState(4);
+
+  const totalPages = Math.ceil(filteredOrderData.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = orderArray.slice(indexOfFirstItem, indexOfLastItem);
-
+  const currentItems = filteredOrderData.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -77,6 +87,20 @@ function ListOrderScreen() {
     }
   };
 
+  const filterOrdersByDate = (date) => {
+    if (date) {
+      const formattedDate = formatDate(date.toISOString());
+      const filteredSales = order.filter(
+        (item) => formatDate(item.order_date) === formattedDate
+      );
+      setFilteredOrderData(filteredSales);
+    } else {
+      // If no date selected, show all sales
+      setFilteredOrderData(order || []);
+      console.log(currentItems);
+    }
+  };
+
   return (
     <div className="p-10">
       {isModalOpen && (
@@ -90,7 +114,9 @@ function ListOrderScreen() {
           order_id={orderID}
         />
       )}
-      <p className="mb-10 text-5xl">ລາຍການສັ່ງຊື້ ( {orderArray.length} )</p>
+      <p className="mb-10 text-5xl">
+        ລາຍການສັ່ງຊື້ ( {filteredOrderData.length} )
+      </p>
       <div className="w-full h-[600px] border border-lineColor py-3 rounded-md flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-center px-5">
@@ -98,11 +124,17 @@ function ListOrderScreen() {
             <div className="border w-1/5 border-lineColor px-5 py-2 rounded-md flex items-center justify-between">
               <div className="flex items-center">
                 <LuCalendarSearch size={30} color="#625F5F" />
-                <div className="w-full rounded text-start ml-2 text-unSelectText">
-                  19/02/2024
-                </div>
+                {isModalOpen ? (
+                  <div></div>
+                ) : (
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={(date) => setSelectedDate(date)}
+                    dateFormat="dd/MM/yyyy"
+                    className="w-full rounded text-start ml-2 text-unSelectText"
+                  />
+                )}
               </div>
-              <IoIosArrowDown size={25} color="#625F5F" />
             </div>
           </div>
           <div className="border border-lineColor w-full py-3 mt-3 bg-head flex justify-between items-center px-5 ">
@@ -158,7 +190,9 @@ function ListOrderScreen() {
             <p className="text-base font-light text-center">ກັບຄືນ</p>
           </div>
           <div className="text-base font-light">
-            {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, orderArray.length)} of {orderArray.length}
+            {indexOfFirstItem + 1} -{" "}
+            {Math.min(indexOfLastItem, filteredOrderData.length)} of{" "}
+            {filteredOrderData.length}
           </div>
           <div
             className="w-1/12 border border-lineColor bg-white rounded-md items-center justify-center flex"

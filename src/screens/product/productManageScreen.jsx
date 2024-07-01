@@ -3,6 +3,7 @@ import ic_search from "../../assets/icons/search.svg";
 import ic_cart from "../../assets/icons/addcart.svg";
 import ic_edit from "../../assets/icons/editI.svg";
 import ic_delete from "../../assets/icons/deleteI.svg";
+import soldout from "../../assets/soldout.png";
 import ProductManageModal from "./modal/productManageModal";
 import ProductManageEditModal from "./modal/productManageEditModal";
 import "../../App.css";
@@ -125,7 +126,26 @@ function ProductManageScreen() {
             key={item.Product_ID}
           >
             <div className="bg-bgPro rounded-md py-8 h-4/6">
-              <img src={item.Product_img} alt="" className=" object-cover" />
+              <div className="">
+                {isModalOpen || isEditModalOpen ? (
+                  <img src={item.Product_img} alt="" className="object-cover" />
+                ) : item.ProductQty === 0 ? (
+                  <div className="relative items-center">
+                    <img
+                      src={item.Product_img}
+                      alt=""
+                      className="object-cover absolute"
+                    />
+                    <img
+                      src={soldout}
+                      alt=""
+                      className="object-cover absolute"
+                    />
+                  </div>
+                ) : (
+                  <img src={item.Product_img} alt="" className="object-cover" />
+                )}
+              </div>
             </div>
             <div className="flex justify-between items-center text-textColor mt-5">
               <p className="text-2xl font-semibold">{item.Product_Name}</p>
