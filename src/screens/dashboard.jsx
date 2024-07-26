@@ -5,6 +5,7 @@ import HomeScreen from "./home/homeScreen.jsx";
 import ListOrderScreen from "./listOrder/listOrderScreen.jsx";
 import HistorySoldScreen from "./historySold/historyScreen.jsx";
 import ImportScreen from "./import/importScreen.jsx";
+import SellFrontScreen from "./import/sellFront.jsx";
 import ProductManageScreen from "./product/productManageScreen.jsx";
 import EmployeeManageScreen from "./employee/employeeManageScreen.jsx";
 import CustomerManageScreen from "./customer/customerManageScreen.jsx";
@@ -29,6 +30,8 @@ function Dashboard() {
     switch (selectedItem) {
       case "home":
         return <HomeScreen />;
+      case "sellFront":
+        return <SellFrontScreen />;
       case "listOrder":
         return <ListOrderScreen />;
       case "historySold":

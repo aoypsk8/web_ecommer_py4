@@ -125,25 +125,25 @@ function ProductManageScreen() {
             className="bg-white shadow-md p-3 mx-10 rounded-lg mt-10"
             key={item.Product_ID}
           >
-            <div className="bg-bgPro rounded-md py-8 h-4/6">
-              <div className="">
+            <div className="bg-bgPro rounded-md py-8 h-80">
+              <div className="w-full h-full">
                 {isModalOpen || isEditModalOpen ? (
-                  <img src={item.Product_img} alt="" className="object-cover" />
+                  <img src={item.Product_img} alt="" className="object-cover h-48 w-full" />
                 ) : item.ProductQty === 0 ? (
-                  <div className="relative items-center">
+                  <div className="relative items-center h-full w-full">
                     <img
                       src={item.Product_img}
                       alt=""
-                      className="object-cover absolute"
+                      className="object-cover absolute  h-full w-full  "
                     />
                     <img
                       src={soldout}
                       alt=""
-                      className="object-cover absolute"
+                      className="object-cover absolute h-full w-full"
                     />
                   </div>
                 ) : (
-                  <img src={item.Product_img} alt="" className="object-cover" />
+                  <img src={item.Product_img} alt="" className="object-contain h-full w-full" />
                 )}
               </div>
             </div>

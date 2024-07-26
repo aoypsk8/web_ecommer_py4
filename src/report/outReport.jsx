@@ -5,6 +5,7 @@ import { LuCalendarSearch } from "react-icons/lu";
 import { useDispatch, useSelector } from "react-redux";
 import { GetAllIn, GetAllOut } from "../api/in-out/in-out";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css"; // Import DatePicker CSS
 
 function formatNumber(number) {
   return new Intl.NumberFormat("en-US").format(number);
@@ -80,13 +81,18 @@ function OutReport() {
       console.log(currentItems);
     }
   };
+
+  const calculateTotal = () => {
+    return filteredSaleData.reduce((total, item) => total + Number(item.Price_Total), 0);
+  };
+
   return (
     <div className="p-10 flex flex-col justify-between">
       <p className=" mb-6 text-5xl">ລາຍງານລາຍຈ່າຍທັງຫມົດ</p>
-      <div className="w-full h-3/4  border border-lineColor py-3 rounded-md flex flex-col justify-between mt-3">
+      <div className="w-full h-3/4 border border-lineColor py-3 rounded-md flex flex-col justify-between mt-3">
         <div className="flex justify-between items-center px-5 pb-5">
           <p className="text-xl w-1/3">ລາຍການຂໍ້ມູນລາຍຈ່າຍທັງຫມົດ</p>
-          <div className=" border w-1/5 border-lineColor px-5 py-2 rounded-md flex items-center justify-between">
+          <div className="border w-1/5 border-lineColor px-5 py-2 rounded-md flex items-center justify-between">
             <LuCalendarSearch size={30} color="#625F5F" />
             <DatePicker
               selected={selectedDate}
@@ -96,8 +102,8 @@ function OutReport() {
             />
           </div>
         </div>
-        <div className="border border-lineColor w-full py-3  bg-head flex justify-between items-center px-5 ">
-          <p className="text-base font-light flex justify-center items-center w-1/12 ">
+        <div className="border border-lineColor w-full py-3 bg-head flex justify-between items-center px-5">
+          <p className="text-base font-light flex justify-center items-center w-1/12">
             ລຳດັບ
           </p>
           <p className="text-base font-light flex justify-center items-center w-1/12">
@@ -106,8 +112,14 @@ function OutReport() {
           <p className="text-base font-light flex justify-center items-center w-1/12">
             ວັນທີ
           </p>
+          <p className="text-base font-light flex justify-center items-center w-1/12">
+            ຊື້ສິນຄ້າ
+          </p>
+          <p className="text-base font-light flex justify-center items-center w-1/12">
+            ຊື່ຜູ້ສະຫນອງ
+          </p>
           <p className="text-base font-light flex justify-center items-center w-1/6">
-            ລາຍຮັບ
+            ລາຍຈ່າຍ
           </p>
         </div>
         {currentItems.map((item, index) => (
@@ -116,13 +128,19 @@ function OutReport() {
             key={index}
           >
             <p className="text-base font-light flex justify-center items-center w-1/12">
-              {item.Ip_ID}
+              {indexOfFirstItem + index + 1}
             </p>
             <p className="text-base font-light flex justify-center items-center w-1/12">
               {formatTime(item.Date_received)}
             </p>
             <p className="text-base font-light flex justify-center items-center w-1/12">
               {formatDate(item.Date_received)}
+            </p>
+            <p className="text-base font-light flex justify-center items-center w-1/12">
+              {(item.Pro_name)}
+            </p>
+            <p className="text-base font-light flex justify-center items-center w-1/12">
+              {(item.First_names)}
             </p>
             <p className="text-2xl font-light flex justify-center items-center w-1/6">
               {formatNumber(item.Price_Total)} ກີບ
@@ -134,7 +152,7 @@ function OutReport() {
             className="w-1/12 border border-lineColor bg-white rounded-md items-center justify-center flex"
             onClick={prevPage}
           >
-            <p className="text-base font-light text-center ">ກັບຄືນ</p>
+            <p className="text-base font-light text-center">ກັບຄືນ</p>
           </div>
           <div className="text-base font-light">
             {indexOfFirstItem + 1} -{" "}
@@ -145,8 +163,13 @@ function OutReport() {
             className="w-1/12 border border-lineColor bg-white rounded-md items-center justify-center flex"
             onClick={nextPage}
           >
-            <p className="text-base font-light text-center ">ຕໍ່ໄປ</p>
+            <p className="text-base font-light text-center">ຕໍ່ໄປ</p>
           </div>
+        </div>
+        <div className="w-full flex justify-between px-5 my-3">
+          <p className="text-2xl font-light">
+            ລາຍຈ່າຍທັງຫມົດ: {formatNumber(calculateTotal())} ກີບ
+          </p>
         </div>
       </div>
     </div>

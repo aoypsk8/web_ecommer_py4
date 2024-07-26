@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import myLogo from "../../assets/logoM.png";
-
-import ic_setting from "../../assets/ic_gery/settings.svg";
 import ic_report from "../../assets/ic_gery/report.svg";
 // gery
 import ic_home from "../../assets/ic_gery/home.svg";
@@ -24,7 +22,7 @@ import ic_type_color from "../../assets/ic_fill/type.svg";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { logoutUser } from "../../api/authAction";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 function Aside({ onItemSelected }) {
@@ -47,6 +45,13 @@ function Aside({ onItemSelected }) {
   };
 
   const [selectedItem, setSelectedItem] = useState("ໜ້າຫຼັກ");
+
+  const [userInforData, setUserInforData] = useState();
+  const { userInfo } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    setUserInforData(userInfo);
+  }, [userInfo]);
 
   // NavItem component
   const NavItem = ({
@@ -454,6 +459,15 @@ function Aside({ onItemSelected }) {
             }}
           />
           <NavItem
+            iconSrc={ic_listOrder}
+            iconCor={ic_listOrder_color}
+            text="ຂາຍສິນຄ້າຫນ້າຮ້ານ"
+            onClick={() => {
+              onItemSelected("sellFront");
+              setSelectedItem("ຂາຍສິນຄ້າຫນ້າຮ້ານ");
+            }}
+          />
+          <NavItem
             iconSrc={ic_hisSold}
             iconCor={ic_hisSold_color}
             text="ປະຫວັດການຂາຍ"
@@ -462,17 +476,18 @@ function Aside({ onItemSelected }) {
               setSelectedItem("ປະຫວັດການຂາຍ");
             }}
           />
-          <NavItem
-            iconSrc={ic_import}
-            iconCor={ic_import_color}
-            text="ການນຳເຂົ້າສິນຄ້າ"
-            onClick={() => {
-              onItemSelected("import");
-              setSelectedItem("ການນຳເຂົ້າສິນຄ້າ");
-            }}
-          />
-
-          <NavItem
+          {userInfo.Roles === "Admin" && (
+            <NavItem
+              iconSrc={ic_import}
+              iconCor={ic_import_color}
+              text="ການນຳເຂົ້າສິນຄ້າ"
+              onClick={() => {
+                onItemSelected("import");
+                setSelectedItem("ການນຳເຂົ້າສິນຄ້າ");
+              }}
+            />
+          )}
+          {/* {userInfo.Roles == "Employee" &&  <NavItem
             iconSrc={ic_managePro}
             iconCor={ic_managePro_color}
             text="ຈັດການ"
@@ -480,7 +495,19 @@ function Aside({ onItemSelected }) {
             isDropDown={isDropDownManage}
             toggleDropDown={toggleDropDownManage}
             manage={true}
-          />
+          /> } */}
+          {userInfo.Roles === "Admin" && (
+            <NavItem
+              iconSrc={ic_managePro}
+              iconCor={ic_managePro_color}
+              text="ຈັດການ"
+              dropDown={true}
+              isDropDown={isDropDownManage}
+              toggleDropDown={toggleDropDownManage}
+              manage={true}
+            />
+          )}
+
           <NavItem
             iconSrc={ic_report}
             iconCor={ic_report}

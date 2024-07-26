@@ -62,7 +62,7 @@ function ListOrderScreen() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(4);
+  const [itemsPerPage] = useState(6);
 
   const totalPages = Math.ceil(filteredOrderData.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -117,7 +117,7 @@ function ListOrderScreen() {
       <p className="mb-10 text-5xl">
         ລາຍການສັ່ງຊື້ ( {filteredOrderData.length} )
       </p>
-      <div className="w-full h-[600px] border border-lineColor py-3 rounded-md flex flex-col justify-between">
+      <div className="w-full h-auto border border-lineColor py-3 rounded-md flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-center px-5">
             <p className="text-xl w-1/3">ລາຍການສັ່ງຊື້ທັງຫມົດ</p>
@@ -182,7 +182,7 @@ function ListOrderScreen() {
             </div>
           ))}
         </div>
-        <div className="w-full flex justify-between px-5">
+        <div className="w-full flex justify-between px-5 mt-5">
           <div
             className="w-1/12 border border-lineColor bg-white rounded-md items-center justify-center flex"
             onClick={prevPage}

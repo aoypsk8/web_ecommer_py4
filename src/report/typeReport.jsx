@@ -108,6 +108,9 @@ function TypeReport() {
           <p className="text-base font-light flex justify-center items-center w-1/12">
             ຮູບພາບ
           </p>
+          <p className="text-base font-light flex justify-center items-center w-1/12">
+            ຈຳນວນສິນຄ້າປະເພດນີ້
+          </p>
 
           <p className="text-base font-light flex justify-center items-center w-1/12">
             ເວລາ
@@ -128,6 +131,9 @@ function TypeReport() {
               {item.Product_Type_Name}
             </p>
             <img src={item.img} alt="" className="w-16 h-16 object-cover" />
+            <p className="text-base font-light flex justify-center items-center w-1/12">
+              {(item.Total_ProductQty)}
+            </p>
             <p className="text-base font-light flex justify-center items-center w-1/12">
               {formatTime(item.timeStamp)}
             </p>

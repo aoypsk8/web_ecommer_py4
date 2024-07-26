@@ -3,6 +3,7 @@ import {
   createProduct,
   deleteProduct,
   getAllProduct,
+  getAllProductWhere,
   updateProduct,
 } from "../productAPI/productApi";
 import { addProduct } from "../../slice/productSlice";
@@ -19,6 +20,20 @@ export const GetAllProduct = () => async (dispatch) => {
     return false;
   }
 };
+
+export const GetAllProductWHERE = () => async (dispatch) => {
+  try {
+    const product = await getAllProductWhere();
+    if (product.status === "ok") {
+      dispatch(addProduct(product.data));
+      return true;
+    }
+  } catch (error) {
+    Swal.fire("Error", error.message, "error");
+    return false;
+  }
+};
+
 
 export const DeleteProduct = (id) => async (dispatch) => {
   try {

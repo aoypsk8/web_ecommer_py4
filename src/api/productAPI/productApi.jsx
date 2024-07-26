@@ -6,6 +6,11 @@ export const getAllProduct = async () => {
   return response.data;
 };
 
+export const getAllProductWhere = async () => {
+  const response = await axios.get(`${BASE_URL}/product/getAllWhere`);
+  return response.data;
+};
+
 export const deleteProduct = async (id) => {
   const response = await axios.delete(`${BASE_URL}/product/delete/${id}`);
   console.log(id);
