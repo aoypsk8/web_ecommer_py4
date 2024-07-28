@@ -1,39 +1,60 @@
-import React from 'react';
-function formatNumber(number) {
-    return new Intl.NumberFormat("en-US").format(number);
-  }
-const Bill = ({ orderData }) => {
-  if (!orderData || !orderData.Products || !Array.isArray(orderData.Products)) {
-    return <p>No order data available</p>;
-  }
+import React from "react";
+import ReactToPrint from "react-to-print";
 
-  const { customerName = 'Unknown', Phone = 'Unknown', Location = 'Unknown', Products = [], totalAmount = 0 } = orderData;
+const Bill = React.forwardRef(({ hideDialogBill, summaryData, productData }, ref) => {
+  const { customerName, Phone, Location, Products, totalAmount } = summaryData;
+
+  const getProductDetails = (productId) => {
+    return productData.find(product => product.Product_ID === productId);
+  };
 
   return (
-    <div className="p-5 border border-gray-300 rounded-md shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Order Bill</h2>
-      <div className="mb-4">
-        <p><strong>Customer:</strong> {customerName}</p>
+    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+      <div ref={ref} className="bg-white p-8 rounded-lg w-96">
+        <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+        <p><strong>Customer Name:</strong> {customerName}</p>
         <p><strong>Phone:</strong> {Phone}</p>
         <p><strong>Location:</strong> {Location}</p>
-      </div>
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold mb-2">Products:</h3>
+        <h3 className="mt-4 font-bold">Products:</h3>
         <ul>
-          {Products.map((product, index) => (
-            <li key={index} className="flex justify-between">
-              <span>{product.Product_Name}</span>
-              <span>{product.quantity} x {formatNumber(product.Price)} ກີບ</span>
-            </li>
-          ))}
+          {Products.map((product, index) => {
+            const productDetails = getProductDetails(product.Product_ID);
+            return (
+              <li key={index} className="mt-2">
+                <div className="flex items-center">
+                  {productDetails && productDetails.Product_img && (
+                    <img
+                      src={productDetails.Product_img}
+                      alt={productDetails.Product_Name}
+                      className="w-12 h-12 object-cover mr-2"
+                    />
+                  )}
+                  <div>
+                    <p>{productDetails ? productDetails.Product_Name : 'Unknown Product'}</p>
+                    <p>Quantity: {product.quantity}</p>
+                    <p>Price: {product.Price}</p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
-      </div>
-      <div className="flex justify-between font-bold">
-        <span>Total:</span>
-        <span>{formatNumber(totalAmount)} ກີບ</span>
+        <p className="mt-4"><strong>Total Amount:</strong> {totalAmount}</p>
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={hideDialogBill}
+            className="bg-secondaryColor text-white py-1 px-3 rounded"
+          >
+            Close
+          </button>
+          <ReactToPrint
+            trigger={() => <button className="bg-primaryColor text-white py-1 px-3 rounded ml-2">Print</button>}
+            content={() => ref.current}
+          />
+        </div>
       </div>
     </div>
   );
-};
+});
 
 export default Bill;

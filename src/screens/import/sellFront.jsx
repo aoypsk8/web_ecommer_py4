@@ -1,29 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { IoIosArrowDown, IoIosArrowBack } from "react-icons/io";
-import { LuCalendarSearch } from "react-icons/lu";
 import "../../App.css";
 import ic_save1 from "../../assets/icons/save1.svg";
 import ic_close1 from "../../assets/icons/close1.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { CreateImportPro, GetAllImportPro } from "../../api/importAPI/importAction";
-import { GetAllProduct, GetAllProductWHERE } from "../../api/productAPI/productAction";
+import { GetAllProductWHERE } from "../../api/productAPI/productAction";
 import { GetAllCustomer } from "../../api/cutomerAPI/customerAction";
 import { CreateOrder } from "../../api/orderAPI/orderAction";
 import Bill from "./bill";
-// import ProductDropdown from "./productBOX";
-
 
 function formatNumber(number) {
   return new Intl.NumberFormat("en-US").format(number);
 }
+
 function SellFrontScreen() {
-  
+  const [visibleBill, setVisibleBill] = useState(false);
+  const hideDialogBill = () => {
+    setVisibleBill(false);
+  };
+
   const dispatch = useDispatch();
   const [productData, setProductData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [value, setValue] = useState({ phone: "" });
-  const [orderSummary, setOrderSummary] = useState(null); 
+  const [orderSummary, setOrderSummary] = useState(null);
+  const billRef = useRef();
 
   const { product } = useSelector((state) => state.product);
   const { customer } = useSelector((state) => state.customer);
@@ -77,7 +79,7 @@ function SellFrontScreen() {
       Price: product.Price,
     }));
     const totalAmount = formattedProducts.reduce((total, product) => total + (product.quantity * product.Price), 0);
-  
+
     const summaryData = {
       Cus_ID: selectedCustomer.Cus_ID,
       customerName: `${selectedCustomer.First_name} ${selectedCustomer.Last_name}`, // Add customer name
@@ -86,7 +88,7 @@ function SellFrontScreen() {
       Products: formattedProducts,
       totalAmount, // Ensure this field is present
     };
-  
+
     dispatch(CreateOrder(
       summaryData.Cus_ID,
       summaryData.Phone,
@@ -94,15 +96,13 @@ function SellFrontScreen() {
       summaryData.Products
     ))
       .then(() => {
+        setVisibleBill(true);
         setOrderSummary(summaryData);
       })
       .catch((error) => {
         console.error('Error creating order:', error);
       });
   };
-  
-
-
 
   const ProductDropdown = ({ options, selectedOptions, onSelect }) => {
     const [isOpenDropDown, setIsOpenDropDown] = useState(false);
@@ -131,6 +131,7 @@ function SellFrontScreen() {
         )
       );
     };
+
     const handleSave = () => {
       console.log('Local selected options on save:', localSelectedOptions); // Debug log
       onSelect(localSelectedOptions);
@@ -174,33 +175,32 @@ function SellFrontScreen() {
                     <p> ຊື່ສິຄ້າ : {product.Product_Name}  </p>
                     <p className="ml-5">ລາຄາ {formatNumber(product.Price)} ກີບ</p>
                   </div>
-                  ({product.ProductQty})
+                  ({product.ProductQty} left)
                   {selectedProduct && (
                     <input
                       type="number"
+                      value={selectedProduct.quantity}
                       min="1"
-                      value={selectedProduct.quantity || 1}
                       onChange={(e) => handleQuantityChange(product, e.target.value)}
-                      className="ml-2 w-16 text-center border border-lineColor rounded"
+                      className="w-16 border border-lineColor rounded-md ml-2 p-1"
                     />
                   )}
                 </li>
               );
             })}
-            <li className="flex justify-end m-2 p-5">
+            <div className="flex justify-center py-2">
               <button
                 onClick={handleSave}
-                className="bg-secondaryColor text-white py-1 px-3 rounded"
+                className="bg-primaryColor text-white py-1 px-3 rounded"
               >
                 Save
               </button>
-            </li>
+            </div>
           </ul>
         )}
       </div>
     );
   };
-
 
   const CustomDropdown = ({ options, selectedOption, onSelect }) => {
     const [isOpenDropDown, setIsOpenDropDown] = useState(false);
@@ -217,7 +217,7 @@ function SellFrontScreen() {
           className="hover:cursor-pointer flex w-full border border-lineColor rounded-md my-2 px-5 justify-between items-center py-2"
           onClick={toggleDropdown}
         >
-          {selectedOption.First_name} {selectedOption.Last_name}
+          {selectedOption.First_name}
           {isOpenDropDown ? <IoIosArrowDown /> : <IoIosArrowBack />}
         </div>
         {isOpenDropDown && (
@@ -225,10 +225,12 @@ function SellFrontScreen() {
             {options.map((option, index) => (
               <li
                 key={index}
+                className="flex items-center text-lg hover:cursor-pointer my-1"
                 onClick={() => handleSelect(option)}
-                className="text-lg hover:cursor-pointer my-1"
               >
-                ຊື່ : {option.First_name} ນາມສະກຸນ : {option.Last_name}
+                <p>
+                  {option.First_name} {option.Last_name}
+                </p>
               </li>
             ))}
           </ul>
@@ -238,65 +240,55 @@ function SellFrontScreen() {
   };
 
   return (
-    <div className="p-10 flex flex-col justify-between">
-      <p className="mb-6 text-5xl">ຂາຍສິນຄ້າຫນ້າຮ້ານ</p>
-
-      <div className="w-full grid grid-cols-3">
-        <div>
-          <p className="text-xl">ລູກຄ້າ</p>
-          <CustomDropdown
-            options={customerOptions}
-            selectedOption={selectedCustomer}
-            onSelect={setSelectedCustomer}
-          />
-        </div>
-        <div className="pl-10">
-          <p className="text-xl">ເບີໂທ</p>
-          <div className="w-full border border-lineColor rounded-md my-2 flex justify-center items-center">
+    <div className="flex flex-col items-center w-full h-full">
+      <h1 className="text-3xl font-bold my-10">ຂາຍຫນ້າຮ້ານ</h1>
+      <div className="flex flex-col justify-center w-full mt-10 border border-lineColor rounded-lg px-5 py-10">
+        <div className="grid grid-cols-2 gap-4 w-full mb-10">
+          <div>
+            <p className="text-xl mb-2">ຊື່ລູກຄ້າ</p>
+            <CustomDropdown
+              options={customerOptions}
+              selectedOption={selectedCustomer}
+              onSelect={setSelectedCustomer}
+            />
+          </div>
+          <div>
+            <p className="text-xl mb-2">ເບີໂທລູກຄ້າ</p>
             <input
-              className="w-full py-2 px-5 rounded-md"
               type="text"
-              placeholder="Phone"
-              value={value.phone}
               name="phone"
+              value={value.phone}
               onChange={handleChange}
+              className="w-full border border-lineColor rounded-md p-2"
             />
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-col">
-        <p className="text-xl">ເລືອກສິນຄ້າ</p>
-        <div className="w-full border border-lineColor rounded-md px-5 py-2">
-          <ProductDropdown
-            options={productOptions}
-            selectedOptions={selectedProducts}
-            onSelect={handleProductSelect}
-          />
-        </div>
-      </div>
+        <p className="text-xl mb-2">ລາຍການສິນຄ້າ</p>
+        <ProductDropdown
+          options={productOptions}
+          selectedOptions={selectedProducts}
+          onSelect={handleProductSelect}
+        />
 
-      <div className="flex justify-center mt-10">
-        <div className="flex items-center">
+        <div className="flex justify-end w-full mt-10">
           <button
-            className="bg-blue-500 text-white py-2 px-4 rounded  bg-greenBottle"
             onClick={handleSubmit}
+            className="bg-primaryColor text-white py-2 px-6 rounded-full"
           >
             Save
           </button>
-          <img className="w-6 ml-3" src={ic_save1} alt="save-icon" />
-        </div>
-        <div className="flex items-center ml-10">
-          <button
-            className="bg-red-500 text-white py-2 px-4 rounded bg-redBottle"
-            onClick={() => console.log("Cancel")}
-          >
-            Cancel
-          </button>
-          <img className="w-6 ml-3" src={ic_close1} alt="close-icon" />
         </div>
       </div>
-      {orderSummary && <Bill orderData={orderSummary} />}
+
+      {visibleBill && orderSummary && (
+        <Bill
+          ref={billRef}
+          hideDialogBill={hideDialogBill}
+          summaryData={orderSummary}
+          productData={productData}
+        />
+      )}
     </div>
   );
 }
